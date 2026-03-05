@@ -1,56 +1,60 @@
-"""Export WaypointMission to KMZ file for DJI Pilot 2.
+"""Export WPML missions to KMZ file for DJI Pilot 2.
 
-DJI Pilot 2 uses KMZ files containing KML with DJI-specific wpml namespace
-for waypoint missions. This module generates compliant KMZ files.
+DJI Pilot 2 KMZ files contain two separate XML files inside wpmz/:
+- template.kml: Simplified preview with waypoint coordinates
+- waylines.wpml: Full execution data with action groups and WGS84 heights
 
-Reference: DJI Developer - Waypoint Mission KMZ Format
-    https://developer.dji.com/doc/cloud-api-tutorial/en/api-reference/
+Reference: DJI WPMZ 1.0.6 specification
 """
 
 import io
 import zipfile
 from pathlib import Path
 
-from jinja2 import Environment, FileSystemLoader
-
-from dji.kmz_generator.mission import WaypointMission
-
-_TEMPLATE_DIR = Path(__file__).parent / "templates"
+from dji.kmz_generator.mission import WpmlMission
+from dji.kmz_generator.wpml_builder import build_template_kml, build_waylines_wpml
 
 
-def _get_template_env() -> Environment:
-    return Environment(
-        loader=FileSystemLoader(str(_TEMPLATE_DIR)),
-        autoescape=False,
-    )
+def export_kmz(mission: WpmlMission, output_path: str | Path) -> Path:
+    """Export a WpmlMission as a KMZ file for DJI Pilot 2.
 
-
-def render_kml(mission: WaypointMission) -> str:
-    """Render a WaypointMission to DJI-compatible KML string."""
-    env = _get_template_env()
-    template = env.get_template("waypoint_mission.kml.j2")
-    return template.render(mission=mission)
-
-
-def export_kmz(mission: WaypointMission, output_path: str | Path) -> Path:
-    """Export a WaypointMission as a KMZ file for DJI Pilot 2.
+    The KMZ is a ZIP containing:
+    - wpmz/template.kml (preview/template data)
+    - wpmz/waylines.wpml (full execution data with action groups)
 
     Args:
-        mission: The waypoint mission to export.
+        mission: The WPML mission to export.
         output_path: Path for the output .kmz file.
 
     Returns:
         Path to the created KMZ file.
     """
     output_path = Path(output_path)
-    kml_content = render_kml(mission)
 
-    # KMZ is a ZIP file containing wpmz/template.kml and wpmz/waylines.wpml
+    template_kml = build_template_kml(mission)
+    waylines_wpml = build_waylines_wpml(mission)
+
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-        zf.writestr("wpmz/template.kml", kml_content)
-        # DJI Pilot 2 also expects a waylines.wpml with the same content
-        zf.writestr("wpmz/waylines.wpml", kml_content)
+        zf.writestr("wpmz/template.kml", template_kml)
+        zf.writestr("wpmz/waylines.wpml", waylines_wpml)
 
     output_path.write_bytes(buf.getvalue())
     return output_path
+
+
+def export_kmz_bytes(mission: WpmlMission) -> bytes:
+    """Export a WpmlMission as KMZ bytes (for HTTP streaming response).
+
+    Returns:
+        KMZ file content as bytes.
+    """
+    template_kml = build_template_kml(mission)
+    waylines_wpml = build_waylines_wpml(mission)
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("wpmz/template.kml", template_kml)
+        zf.writestr("wpmz/waylines.wpml", waylines_wpml)
+
+    return buf.getvalue()

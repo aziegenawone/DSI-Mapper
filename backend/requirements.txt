@@ -34,6 +34,9 @@ geojson>=3.1.0
 # Thermal processing
 numpy>=1.26.0
 Pillow>=11.0.0
+
+# Computer vision (headless — no GUI dependencies for server use)
+opencv-python-headless>=4.10.0
 # flirimageextractor>=1.4.0  # fallback if DJI Thermal SDK unavailable
 
 # AI (install separately with CUDA)

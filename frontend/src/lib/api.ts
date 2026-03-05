@@ -4,6 +4,61 @@ const api = axios.create({
   baseURL: '/api',
 })
 
+// ── Flight Planner types ──────────────────────────────────────────────────────
+
+export interface FlightPlanRequest {
+  boundary_coords: number[][]   // [[lat, lng], ...]
+  num_rows: number
+  gsd_cm_px: number
+  camera_preset_key: string
+  rotation_deg: number
+  is_vertical: boolean
+  zoom_ratio: number
+  object_height_m: number
+  flight_speed_ms: number
+  gimbal_pitch_deg: number
+  photo_interval_s: number
+  aircraft_yaw_deg: number
+  mission_name: string
+}
+
+export interface FlightPlanResponse {
+  waypoints: Array<{
+    latitude: number
+    longitude: number
+    altitude_agl: number
+    heading_deg: number
+    row_index: number
+  }>
+  altitude_agl: number
+  altitude_above_object: number
+  gsd_cm_px: number
+  estimated_distance_m: number
+  estimated_duration_s: number
+  estimated_photos: number
+  camera_name: string
+  zoom_ratio: number
+  flight_speed_ms: number
+  num_rows: number
+}
+
+export interface CameraPreset {
+  name: string
+  sensor_width_mm: number
+  image_width_px: number
+  min_focal_length_mm: number
+  max_focal_length_mm: number
+}
+
+export const flightPlannerApi = {
+  getCameraPresets: () =>
+    api.get<Record<string, CameraPreset>>('/flights/camera-presets').then(r => r.data),
+  previewPlan: (data: FlightPlanRequest) =>
+    api.post<FlightPlanResponse>('/flights/plan/preview', data).then(r => r.data),
+  exportKmz: (data: FlightPlanRequest) =>
+    api.post('/flights/plan/export-kmz', data, { responseType: 'blob' }),
+}
+
 // Types matching backend schemas
 export interface Site {
   id: string

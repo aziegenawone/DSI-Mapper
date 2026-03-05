@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# AI models (large binary files)
+ai/models/*.pt
+ai/models/*.onnx
+ai/models/*.engine
+ai/datasets/raw/
+
+# DJI SDK binaries
+dji/thermal_sdk/*.dll
+dji/thermal_sdk/*.so
+dji/thermal_sdk/*.dylib
+
+# Object storage data
+minio_data/
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# Processing outputs
+uploads/
+outputs/
+*.tif
+*.tiff
+*.las
+*.laz
+*.ply
+*.obj
+
+# Reports
+*.pdf
+
+# Logs
+*.log
+logs/
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/

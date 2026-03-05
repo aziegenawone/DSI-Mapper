@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"
+     xmlns:wpml="http://www.dji.com/wpmz/1.0.6">
+  <Document>
+    <wpml:author>DSI Mapper</wpml:author>
+    <wpml:createTime>{{ mission.name }}</wpml:createTime>
+    <wpml:updateTime>{{ mission.name }}</wpml:updateTime>
+
+    <!-- Mission Config -->
+    <wpml:missionConfig>
+      <wpml:flyToWaylineMode>safely</wpml:flyToWaylineMode>
+      <wpml:finishAction>{{ mission.finish_action }}</wpml:finishAction>
+      <wpml:exitOnRCLost>executeLostAction</wpml:exitOnRCLost>
+      <wpml:executeRCLostAction>goBack</wpml:executeRCLostAction>
+      <wpml:globalTransitionalSpeed>{{ mission.auto_flight_speed_ms }}</wpml:globalTransitionalSpeed>
+      <wpml:droneInfo>
+        <wpml:droneEnumValue>89</wpml:droneEnumValue><!-- M30T -->
+        <wpml:droneSubEnumValue>1</wpml:droneSubEnumValue>
+      </wpml:droneInfo>
+    </wpml:missionConfig>
+
+    <!-- Wayline (folder) -->
+    <Folder>
+      <wpml:templateId>0</wpml:templateId>
+      <wpml:executeHeightMode>relativeToStartPoint</wpml:executeHeightMode>
+      <wpml:waylineId>0</wpml:waylineId>
+      <wpml:autoFlightSpeed>{{ mission.auto_flight_speed_ms }}</wpml:autoFlightSpeed>
+
+      {% for wp in mission.waypoints %}
+      <Placemark>
+        <Point>
+          <coordinates>{{ wp.longitude }},{{ wp.latitude }}</coordinates>
+        </Point>
+        <wpml:index>{{ loop.index0 }}</wpml:index>
+        <wpml:executeHeight>{{ wp.altitude_m }}</wpml:executeHeight>
+        <wpml:waypointSpeed>{{ wp.speed_ms or mission.auto_flight_speed_ms }}</wpml:waypointSpeed>
+        <wpml:waypointHeadingParam>
+          <wpml:waypointHeadingMode>{{ mission.heading_mode }}</wpml:waypointHeadingMode>
+          <wpml:waypointHeadingAngle>{{ wp.heading_deg }}</wpml:waypointHeadingAngle>
+        </wpml:waypointHeadingParam>
+        <wpml:waypointTurnParam>
+          <wpml:waypointTurnMode>toPointAndStopWithDiscontinuityCurvature</wpml:waypointTurnMode>
+        </wpml:waypointTurnParam>
+
+        {% if wp.actions %}
+        <wpml:actionGroup>
+          <wpml:actionGroupId>{{ loop.index0 }}</wpml:actionGroupId>
+          <wpml:actionGroupStartIndex>{{ loop.index0 }}</wpml:actionGroupStartIndex>
+          <wpml:actionGroupEndIndex>{{ loop.index0 }}</wpml:actionGroupEndIndex>
+          <wpml:actionGroupMode>sequence</wpml:actionGroupMode>
+          <wpml:actionTrigger>
+            <wpml:actionTriggerType>reachPoint</wpml:actionTriggerType>
+          </wpml:actionTrigger>
+          {% for action in wp.actions %}
+          <wpml:action>
+            <wpml:actionId>{{ loop.index0 }}</wpml:actionId>
+            <wpml:actionActuatorFunc>{{ action.action_type.value }}</wpml:actionActuatorFunc>
+            <wpml:actionActuatorFuncParam>
+              {% if action.gimbal_pitch_deg is not none %}
+              <wpml:gimbalPitchRotateAngle>{{ action.gimbal_pitch_deg }}</wpml:gimbalPitchRotateAngle>
+              {% endif %}
+              {% if action.zoom_ratio is not none %}
+              <wpml:focalLength>{{ action.zoom_ratio }}</wpml:focalLength>
+              {% endif %}
+            </wpml:actionActuatorFuncParam>
+          </wpml:action>
+          {% endfor %}
+        </wpml:actionGroup>
+        {% endif %}
+      </Placemark>
+      {% endfor %}
+    </Folder>
+  </Document>
+</kml>

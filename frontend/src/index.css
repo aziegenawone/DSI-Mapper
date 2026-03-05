@@ -1,0 +1,75 @@
+:root {
+  font-family: 'Segoe UI', -apple-system, sans-serif;
+  line-height: 1.5;
+  color: #213547;
+  background-color: #f8f9fa;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  background: #1a1d27;
+  color: #dfe6e9;
+  padding: 20px 0;
+  flex-shrink: 0;
+}
+
+.sidebar h1 {
+  font-size: 1.2rem;
+  padding: 0 20px 20px;
+  border-bottom: 1px solid #2d3142;
+  margin-bottom: 12px;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 10px 20px;
+  color: #8a94a6;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.15s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  color: #fff;
+  background: rgba(108, 92, 231, 0.15);
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Leaflet map container */
+.map-container {
+  height: 500px;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #dee2e6;
+}
